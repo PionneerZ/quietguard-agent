@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="QuietGuard is a safety-first Strands agent that catches disk-pressure incidents, removes only explicitly allowlisted regenerable files, and preserves the evidence.">
+  <meta name="theme-color" content="#08110f">
+  <meta property="og:title" content="QuietGuard — disk pressure, handled quietly">
+  <meta property="og:description" content="A safety-first autonomous disk-pressure agent built with Strands Agents.">
+  <meta property="og:image" content="assets/dashboard.png">
+  <title>QuietGuard — disk pressure, handled quietly</title>
+  <style>
+    :root {
+      --ink: #edf9f4;
+      --muted: #a9c0b7;
+      --green: #7cf7b8;
+      --green-strong: #30dc8b;
+      --amber: #ffc96a;
+      --red: #ff9180;
+      --panel: rgba(15, 32, 28, .78);
+      --line: rgba(165, 218, 194, .16);
+      --shadow: 0 30px 90px rgba(0, 0, 0, .32);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% 5%, rgba(48, 220, 139, .15), transparent 29rem),
+        radial-gradient(circle at 90% 25%, rgba(255, 201, 106, .08), transparent 24rem),
+        #08110f;
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+    a { color: inherit; }
+    img, video { display: block; max-width: 100%; }
+    button { font: inherit; }
+    .wrap { width: min(1160px, calc(100% - 36px)); margin: 0 auto; }
+    .skip {
+      position: fixed; left: 16px; top: -80px; z-index: 20;
+      background: var(--ink); color: #08110f; padding: 9px 14px; border-radius: 8px;
+    }
+    .skip:focus { top: 16px; }
+
+    header {
+      position: sticky; top: 0; z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(8, 17, 15, .82);
+      backdrop-filter: blur(18px);
+    }
+    nav { min-height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 22px; }
+    .brand { display: flex; align-items: center; gap: 11px; text-decoration: none; font-weight: 770; letter-spacing: -.02em; }
+    .mark {
+      width: 31px; height: 31px; border: 1px solid rgba(124, 247, 184, .42); border-radius: 10px;
+      background: linear-gradient(135deg, rgba(124, 247, 184, .22), rgba(124, 247, 184, .02));
+      display: grid; place-items: center; box-shadow: inset 0 0 18px rgba(124, 247, 184, .08);
+    }
+    .mark::before { content: ""; width: 10px; height: 10px; border: 3px solid var(--green); border-radius: 50%; }
+    .nav-links { display: flex; align-items: center; gap: 24px; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .92rem; }
+    .nav-links a:hover, .nav-links a:focus-visible { color: var(--ink); }
+    .github-link { border: 1px solid var(--line); border-radius: 999px; padding: 8px 14px; }
+
+    .hero { padding: 92px 0 54px; }
+    .hero-grid { display: grid; grid-template-columns: 1.05fr .95fr; gap: 56px; align-items: center; }
+    .eyebrow {
+      display: inline-flex; gap: 8px; align-items: center; color: var(--green); text-transform: uppercase;
+      letter-spacing: .15em; font-size: .74rem; font-weight: 760;
+    }
+    .eyebrow::before { content: ""; width: 25px; height: 1px; background: currentColor; }
+    h1 { margin: 20px 0; max-width: 760px; font-size: clamp(3.2rem, 7vw, 6.8rem); line-height: .92; letter-spacing: -.065em; }
+    h1 span { color: var(--green); }
+    .lede { max-width: 650px; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.28rem); }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 32px; }
+    .button {
+      min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+      padding: 0 18px; border-radius: 12px; border: 1px solid var(--line); color: var(--ink);
+      background: rgba(255, 255, 255, .025); font-weight: 720; text-decoration: none; cursor: pointer;
+    }
+    .button.primary { color: #06130d; background: var(--green); border-color: var(--green); }
+    .button:hover, .button:focus-visible { transform: translateY(-1px); border-color: rgba(124, 247, 184, .7); }
+    .button.primary:hover, .button.primary:focus-visible { background: #a0fccc; }
+    .fine-print { margin-top: 18px; color: #779087; font-size: .78rem; }
+
+    .signal-card {
+      position: relative; overflow: hidden; padding: 22px; border: 1px solid var(--line); border-radius: 24px;
+      background: linear-gradient(145deg, rgba(24, 50, 42, .82), rgba(8, 18, 15, .92)); box-shadow: var(--shadow);
+    }
+    .signal-card::after {
+      content: ""; position: absolute; inset: auto -40px -80px auto; width: 220px; height: 220px; border-radius: 50%;
+      background: rgba(48, 220, 139, .12); filter: blur(20px); pointer-events: none;
+    }
+    .card-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; }
+    .live { display: flex; align-items: center; gap: 8px; color: var(--green); font-size: .8rem; font-weight: 760; text-transform: uppercase; letter-spacing: .11em; }
+    .live::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 6px rgba(124, 247, 184, .1); }
+    .cycle { color: #789188; font: 500 .75rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .big-result { margin-bottom: 26px; }
+    .big-result strong { display: block; font-size: clamp(3.1rem, 7vw, 5.6rem); letter-spacing: -.06em; line-height: 1; color: var(--green); }
+    .big-result span { color: var(--muted); font-size: .92rem; }
+    .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+    .metric { min-height: 98px; padding: 14px; border-radius: 14px; border: 1px solid var(--line); background: rgba(0, 0, 0, .14); }
+    .metric b { display: block; margin-bottom: 4px; font-size: 1.25rem; }
+    .metric small { color: var(--muted); line-height: 1.3; display: block; }
+    .metric.warn b { color: var(--amber); }
+    .metric.safe b { color: var(--green); }
+    .audit { margin-top: 15px; display: flex; gap: 9px; align-items: flex-start; color: #8ca69c; font: .72rem ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+    .audit span { color: var(--green); }
+
+    .trust-strip { border-block: 1px solid var(--line); background: rgba(255, 255, 255, .012); }
+    .trust { min-height: 76px; display: grid; grid-template-columns: repeat(4, 1fr); align-items: center; gap: 24px; }
+    .trust-item { color: var(--muted); font-size: .82rem; }
+    .trust-item b { display: block; color: var(--ink); font-size: .95rem; }
+
+    section { padding: 92px 0; }
+    .section-head { max-width: 760px; margin-bottom: 40px; }
+    .section-head h2 { margin: 12px 0; font-size: clamp(2.25rem, 5vw, 4.25rem); line-height: 1.02; letter-spacing: -.055em; }
+    .section-head p { color: var(--muted); font-size: 1.08rem; }
+
+    .demo-shell { border: 1px solid var(--line); border-radius: 24px; overflow: hidden; background: #030706; box-shadow: var(--shadow); }
+    .demo-bar { height: 42px; display: flex; align-items: center; gap: 7px; padding: 0 16px; background: #10201b; border-bottom: 1px solid var(--line); }
+    .dot { width: 9px; height: 9px; border-radius: 50%; background: #355048; }
+    .dot:first-child { background: var(--red); }
+    .dot:nth-child(2) { background: var(--amber); }
+    .dot:nth-child(3) { background: var(--green); }
+    video { width: 100%; aspect-ratio: 16 / 9; background: #030706; }
+
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; counter-reset: flow; }
+    .step {
+      counter-increment: flow; min-height: 215px; padding: 22px; border: 1px solid var(--line); border-radius: 17px;
+      background: var(--panel); position: relative; overflow: hidden;
+    }
+    .step::before { content: "0" counter(flow); color: var(--green); font: 700 .8rem ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .step h3 { margin: 38px 0 10px; font-size: 1.2rem; }
+    .step p { color: var(--muted); font-size: .91rem; margin: 0; }
+    .step::after { content: "→"; position: absolute; top: 17px; right: 18px; color: #49675d; }
+    .step:last-child::after { content: "✓"; color: var(--green); }
+
+    .proof { display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 42px; }
+    .proof-image { padding: 12px; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,255,255,.025); }
+    .proof-image img { border-radius: 14px; }
+    .checks { display: grid; gap: 12px; }
+    .check { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 17px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255,255,255,.02); }
+    .check i { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 9px; color: var(--green); background: rgba(124, 247, 184, .1); font-style: normal; font-weight: 800; }
+    .check b { display: block; margin-bottom: 2px; }
+    .check span { color: var(--muted); font-size: .88rem; }
+
+    .architecture { border: 1px solid var(--line); border-radius: 24px; background: #f6fbf8; overflow: hidden; }
+    .architecture img { width: 100%; }
+
+    .run-card {
+      padding: clamp(26px, 5vw, 58px); border: 1px solid rgba(124, 247, 184, .28); border-radius: 25px;
+      background: linear-gradient(130deg, rgba(28, 65, 52, .75), rgba(11, 24, 20, .85));
+      display: grid; grid-template-columns: .85fr 1.15fr; gap: 48px; align-items: center;
+    }
+    .run-card h2 { margin: 0 0 12px; font-size: clamp(2rem, 4vw, 3.3rem); letter-spacing: -.045em; line-height: 1.04; }
+    .run-card p { color: var(--muted); margin: 0; }
+    .terminal { border: 1px solid var(--line); border-radius: 14px; background: #060d0b; overflow: hidden; }
+    .terminal pre { margin: 0; padding: 20px; overflow-x: auto; color: #c7e9d9; font: .86rem/1.7 ui-monospace, SFMono-Regular, Consolas, monospace; }
+    .terminal .copy { width: 100%; border: 0; border-top: 1px solid var(--line); padding: 11px 16px; color: var(--muted); background: rgba(255,255,255,.025); cursor: pointer; text-align: left; }
+    .terminal .copy:hover, .terminal .copy:focus-visible { color: var(--green); }
+
+    footer { padding: 38px 0 54px; color: #779087; }
+    .footer-grid { border-top: 1px solid var(--line); padding-top: 28px; display: flex; justify-content: space-between; gap: 22px; }
+    footer a { color: var(--muted); }
+
+    @media (max-width: 900px) {
+      .hero-grid, .proof, .run-card { grid-template-columns: 1fr; }
+      .hero { padding-top: 70px; }
+      .flow { grid-template-columns: repeat(2, 1fr); }
+      .trust { grid-template-columns: repeat(2, 1fr); padding: 20px 0; }
+      .signal-card { max-width: 640px; }
+    }
+    @media (max-width: 620px) {
+      .wrap { width: min(100% - 24px, 1160px); }
+      .nav-links a:not(.github-link) { display: none; }
+      .hero { padding-top: 54px; }
+      h1 { font-size: clamp(3rem, 16vw, 4.4rem); }
+      .metric-grid, .flow { grid-template-columns: 1fr; }
+      .metric { min-height: auto; }
+      section { padding: 66px 0; }
+      .footer-grid { flex-direction: column; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <header>
+    <nav class="wrap" aria-label="Primary navigation">
+      <a class="brand" href="#top"><span class="mark" aria-hidden="true"></span>QuietGuard</a>
+      <div class="nav-links">
+        <a href="#demo">Demo</a>
+        <a href="#safety">Safety</a>
+        <a href="#architecture">Architecture</a>
+        <a class="github-link" href="https://github.com/PionneerZ/quietguard-agent">View source ↗</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Built with Strands Agents</div>
+          <h1>Disk pressure,<br><span>handled quietly.</span></h1>
+          <p class="lede">QuietGuard detects runaway diagnostic logs, makes a bounded cleanup plan, and acts only inside explicit safety boundaries. Uncertain evidence reaches a human with context.</p>
+          <div class="actions">
+            <a class="button primary" href="#demo">Watch the 2:04 demo <span aria-hidden="true">▶</span></a>
+            <a class="button" href="https://github.com/PionneerZ/quietguard-agent">Explore the code <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="fine-print">Open source · MIT licensed · deterministic offline demo · no cloud account required</p>
+        </div>
+
+        <div class="signal-card" aria-label="Contained demo result">
+          <div class="card-top">
+            <div class="live">Cycle complete</div>
+            <div class="cycle">QG-20260905-01</div>
+          </div>
+          <div class="big-result">
+            <strong>3.0 MB</strong>
+            <span>safely reclaimed in the contained incident</span>
+          </div>
+          <div class="metric-grid">
+            <div class="metric safe"><b>2</b><small>allowlisted logs removed</small></div>
+            <div class="metric"><b>2</b><small>sensitive files preserved</small></div>
+            <div class="metric warn"><b>1</b><small>decision escalated</small></div>
+          </div>
+          <div class="audit"><span>✓</span> Audit chain verified · exact root boundary held</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="trust-strip">
+      <div class="wrap trust">
+        <div class="trust-item"><b>Read-only by default</b>Actions require an explicit flag</div>
+        <div class="trust-item"><b>Marker allowlist</b>Only approved subtrees qualify</div>
+        <div class="trust-item"><b>Budget bounded</b>Every cycle has a byte limit</div>
+        <div class="trust-item"><b>Evidence preserved</b>SHA-256 hash-chained audit</div>
+      </div>
+    </div>
+
+    <section id="demo">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Working proof</div>
+          <h2>See the whole agent cycle.</h2>
+          <p>The demo creates a contained log storm, runs the real Strands tool loop, applies guarded actions, and publishes the evidence. Captions explain every decision.</p>
+        </div>
+        <div class="demo-shell">
+          <div class="demo-bar" aria-hidden="true"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          <video controls preload="metadata" poster="assets/dashboard.png">
+            <source src="assets/quietguard-demo.mp4" type="video/mp4">
+            Your browser does not support embedded video. <a href="assets/quietguard-demo.mp4">Download the demo</a>.
+          </video>
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="how-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Agent loop</div>
+          <h2 id="how-title">Evidence before action.</h2>
+          <p>A real <code>strands.Agent</code> coordinates four narrow tools. Each step leaves a durable artifact that can be reviewed or replayed.</p>
+        </div>
+        <div class="flow">
+          <article class="step"><h3>Scan</h3><p>Walk the exact configured root, refuse links and reparse points, and compare files with the previous baseline.</p></article>
+          <article class="step"><h3>Plan</h3><p>Classify evidence by marker, extension, age, and risk. Fit safe candidates inside the cycle budget.</p></article>
+          <article class="step"><h3>Act</h3><p>Revalidate every boundary immediately before deletion. A changed or uncertain file is skipped.</p></article>
+          <article class="step"><h3>Publish</h3><p>Write the dashboard, machine-readable incident report, and tamper-evident audit chain.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section id="safety">
+      <div class="wrap proof">
+        <div class="proof-image"><img src="assets/dashboard.png" alt="QuietGuard dashboard showing 3.0 MB reclaimed, protected files, and one review escalation" loading="lazy"></div>
+        <div>
+          <div class="section-head">
+            <div class="eyebrow">Safety contract</div>
+            <h2>Autonomy with a hard edge.</h2>
+            <p>QuietGuard removes known regenerable noise and refuses to guess about user data.</p>
+          </div>
+          <div class="checks">
+            <div class="check"><i>✓</i><div><b>Explicit operator boundary</b><span>A <code>.quietguard-safe</code> marker is required below the exact configured root.</span></div></div>
+            <div class="check"><i>✓</i><div><b>Narrow file policy</b><span>Only old <code>.log</code>, <code>.tmp</code>, <code>.trace</code>, and <code>.dmp</code> files qualify.</span></div></div>
+            <div class="check"><i>✓</i><div><b>Unknown means protected</b><span>Databases, documents, media, archives, unmarked logs, links, and reparse points remain untouched.</span></div></div>
+            <div class="check"><i>✓</i><div><b>Reviewable decisions</b><span>Each decision records its evidence in a SHA-256 linked audit stream.</span></div></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Architecture</div>
+          <h2>One agent. Four focused tools.</h2>
+          <p>The included deterministic Strands model makes the full demo private and free to run. A production deployment can swap in any Strands-supported model without changing the filesystem guardrails.</p>
+        </div>
+        <div class="architecture"><img src="assets/architecture.png" alt="QuietGuard architecture: disk signals flow into the Strands agent, scan, plan, guarded action, dashboard, and human review" loading="lazy"></div>
+      </div>
+    </section>
+
+    <section aria-labelledby="run-title">
+      <div class="wrap run-card">
+        <div>
+          <div class="eyebrow">Try it locally</div>
+          <h2 id="run-title">Run the contained incident.</h2>
+          <p>Python 3.10+ is enough. The demo creates its own synthetic workspace and never touches your files.</p>
+        </div>
+        <div class="terminal">
+          <pre id="command">git clone https://github.com/PionneerZ/quietguard-agent.git
+cd quietguard-agent
+python -m pip install -e .
+quietguard demo</pre>
+          <button class="copy" type="button" data-copy="command">Copy quickstart</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-grid">
+      <span>QuietGuard · Agents for Humans Hackathon 2026</span>
+      <span><a href="https://github.com/PionneerZ/quietguard-agent">Source &amp; documentation</a> · MIT License</span>
+    </div>
+  </footer>
+
+  <script>
+    document.querySelector('[data-copy]').addEventListener('click', async function () {
+      const button = this;
+      const value = document.getElementById(button.dataset.copy).innerText;
+      try {
+        await navigator.clipboard.writeText(value);
+        button.textContent = 'Copied to clipboard';
+      } catch (_) {
+        button.textContent = 'Select the command above to copy';
+      }
+      window.setTimeout(() => { button.textContent = 'Copy quickstart'; }, 2200);
+    });
+  </script>
+</body>
+</html>
+
