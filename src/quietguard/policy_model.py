@@ -97,5 +97,3 @@ class SafetyPolicyModel(Model):
                 "metrics": {"latencyMs": 0},
             }
         }
-
-

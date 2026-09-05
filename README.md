@@ -91,4 +91,3 @@ CI runs the same suite on Linux and Windows with Python 3.11, including a full o
 ## Hackathon disclosure
 
 This project was created during the Agents for Humans Hackathon submission period. OpenAI Codex was used as a coding assistant. The product design, safety rules, source code, tests, and demo artifacts in this repository are new work for the hackathon. QuietGuard uses the Strands Agents SDK 1.54.0 and is released under the MIT License.
-

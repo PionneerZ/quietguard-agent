@@ -18,4 +18,3 @@ QuietGuard is a safety-first autonomous disk-pressure agent for professionals an
 The implementation uses a real `strands.Agent` loop with four custom tools. The included offline custom model provider makes the demo deterministic, private, and free to run; any Strands-supported model provider can replace it without changing the filesystem guardrails. Every action is revalidated at execution time and recorded in a tamper-evident audit chain. The contained demo proves the end-to-end behavior without touching user files.
 
 Built during the Agents for Humans Hackathon. OpenAI Codex was used as a coding assistant. All QuietGuard product code, safety rules, tests, visual assets, and demo materials are new work for this event.
-

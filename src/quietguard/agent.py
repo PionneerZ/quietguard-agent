@@ -84,5 +84,3 @@ def run_cycle(
         "report": str(runtime.output_dir / "incident-report.json"),
         "audit": str(runtime.output_dir / "audit.jsonl"),
     }
-
-

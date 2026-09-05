@@ -20,5 +20,3 @@
   <text x="90" y="430" font-family="Segoe UI" font-size="14" font-weight="700" fill="#57e3cf">NON-NEGOTIABLE SAFETY BOUNDARY</text>
   <g font-family="Segoe UI" font-size="16" fill="#fff"><text x="90" y="474">✓ exact resolved root</text><text x="330" y="474">✓ explicit .quietguard-safe marker</text><text x="650" y="474">✓ safe extension + minimum age</text><text x="950" y="474">✓ byte budget</text><text x="90" y="505">✓ symlink/reparse refusal</text><text x="330" y="505">✓ unknown data is protected</text><text x="650" y="505">✓ read-only default</text><text x="950" y="505">✓ every decision hashed</text></g>
 </svg>
-
-

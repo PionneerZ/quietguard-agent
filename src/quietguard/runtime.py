@@ -342,4 +342,3 @@ code{{color:#29415f}} .pill{{padding:4px 9px;border-radius:999px;font-size:12px;
 <article class='card'><h2>Evidence table</h2><div style='overflow:auto'><table><thead><tr><th>Path</th><th>Size</th><th>Growth</th><th>Age</th><th>Decision</th></tr></thead><tbody>{rows}</tbody></table></div></article>
 <footer>Tamper-evident audit chain: {html.escape(self._audit_hash[:20])}… · No external scripts or network calls. <span data-report='{payload}'></span></footer>
 </main></body></html>"""
-

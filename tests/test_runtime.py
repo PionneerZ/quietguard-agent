@@ -109,4 +109,3 @@ def test_real_strands_agent_invokes_expected_tool_order(tmp_path: Path) -> None:
     assert "strands_agent_started" in events
     assert events.index("scan_completed") < events.index("plan_built") < events.index("report_publishing")
     assert "QuietGuard completed" in result["result"]
-
