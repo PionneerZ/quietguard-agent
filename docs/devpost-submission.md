@@ -12,7 +12,7 @@
 
 **Live demo:** https://pionneerz.github.io/quietguard-agent/
 
-**Video:** Pending public YouTube or Vimeo URL. The finished 2:04 MP4 is at `docs/assets/quietguard-demo.mp4`.
+**Video:** https://vimeo.com/1224243653 — public 2:04 H.264 demo. The source MP4 is at `docs/assets/quietguard-demo.mp4`.
 
 **Built with:** Python, Strands Agents SDK 1.54.0, HTML, JSON, SHA-256, pytest, GitHub Actions
 
