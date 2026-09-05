@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quietguard-agent"
+version = "0.1.0"
+description = "A safety-first Strands agent that detects disk log storms, cleans only explicit allowlists, and stays quiet until a decision is needed."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "PionneerZ" }]
+dependencies = ["strands-agents==1.54.0"]
+
+[project.scripts]
+quietguard = "quietguard.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+
