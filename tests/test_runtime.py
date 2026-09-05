@@ -107,7 +107,6 @@ def test_real_strands_agent_invokes_expected_tool_order(tmp_path: Path) -> None:
     records = [json.loads(line) for line in Path(result["audit"]).read_text(encoding="utf-8").splitlines()]
     events = [record["event"] for record in records]
     assert "strands_agent_started" in events
-    assert events.index("scan_completed") < events.index("plan_built") < events.index("report_published")
+    assert events.index("scan_completed") < events.index("plan_built") < events.index("report_publishing")
     assert "QuietGuard completed" in result["result"]
-
 
