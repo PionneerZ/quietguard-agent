@@ -1,5 +1,7 @@
 # QuietGuard
 
+[![tests](https://github.com/PionneerZ/quietguard-agent/actions/workflows/test.yml/badge.svg)](https://github.com/PionneerZ/quietguard-agent/actions/workflows/test.yml)
+
 QuietGuard is a Strands-powered agent that catches disk-pressure incidents such as runaway diagnostic logs, makes a bounded plan, and stays silent until there is a real decision. It defaults to read-only operation. Automatic cleanup is available only below directories that contain an explicit `.quietguard-safe` marker, and every decision is recorded in a hash-chained audit log.
 
 ![QuietGuard architecture](docs/architecture.svg)
@@ -70,6 +72,8 @@ Serve a completed dashboard locally:
 ```
 
 The tests prove classification, marker enforcement, outside-root refusal, action budgets, symlink/reparse avoidance where supported, audit-chain integrity, and actual Strands tool ordering.
+
+CI runs the same suite on Linux and Windows with Python 3.11, including a full offline Strands agent cycle.
 
 ## Hackathon disclosure
 
