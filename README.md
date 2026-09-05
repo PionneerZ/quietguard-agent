@@ -6,6 +6,10 @@ QuietGuard is a Strands-powered agent that catches disk-pressure incidents such 
 
 **[Open the live product demo](https://pionneerz.github.io/quietguard-agent/)**
 
+**[View the submitted Agents for Humans project on Devpost](https://devpost.com/software/quietguard-cuato0)**
+
+**[Watch the public 2:04 Vimeo demo](https://vimeo.com/1224243653)**
+
 ![QuietGuard architecture](docs/architecture.svg)
 
 **[Watch the 2:04 captioned demo](docs/assets/quietguard-demo.mp4)**
