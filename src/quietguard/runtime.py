@@ -202,6 +202,7 @@ class QuietGuardRuntime:
             "safe_candidate_bytes": safe_bytes,
             "growth_bytes": growth_bytes,
             "free_bytes": disk.free,
+            "free_percent": round((disk.free / max(1, disk.total)) * 100, 2),
             "skipped_reparse_points": skipped_reparse,
         }
         new_baseline = {
@@ -277,6 +278,9 @@ class QuietGuardRuntime:
         return self.execution
 
     def report(self) -> dict[str, Any]:
+        json_path = self.output_dir / "incident-report.json"
+        dashboard_path = self.output_dir / "dashboard.html"
+        self.audit("report_publishing", {"json": str(json_path), "dashboard": str(dashboard_path)})
         report = {
             "generated_at": utc_now(),
             "agent": "QuietGuard",
@@ -288,11 +292,8 @@ class QuietGuardRuntime:
             "findings": [asdict(item) for item in self.findings],
             "audit": {"path": str(self._audit_path), "last_hash": self._audit_hash, "events": self._audit_seq},
         }
-        json_path = self.output_dir / "incident-report.json"
         json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-        dashboard_path = self.output_dir / "dashboard.html"
         dashboard_path.write_text(self._dashboard(report), encoding="utf-8")
-        self.audit("report_published", {"json": str(json_path), "dashboard": str(dashboard_path)})
         return {"json": str(json_path), "dashboard": str(dashboard_path), "status": self.summary.get("status")}
 
     def _dashboard(self, report: dict[str, Any]) -> str:
@@ -341,5 +342,4 @@ code{{color:#29415f}} .pill{{padding:4px 9px;border-radius:999px;font-size:12px;
 <article class='card'><h2>Evidence table</h2><div style='overflow:auto'><table><thead><tr><th>Path</th><th>Size</th><th>Growth</th><th>Age</th><th>Decision</th></tr></thead><tbody>{rows}</tbody></table></div></article>
 <footer>Tamper-evident audit chain: {html.escape(self._audit_hash[:20])}… · No external scripts or network calls. <span data-report='{payload}'></span></footer>
 </main></body></html>"""
-
 
